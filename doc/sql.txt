@@ -1,0 +1,74 @@
+----------------------------------
+-- 같은 회사 팀
+----------------------------------
+create  table  team(
+	team_idx number primary key 
+	, id varchar2(20)
+	, pass varchar2(20)
+	, name varchar2(20)
+	, photo varchar2(20)
+);
+
+create sequence seq_team
+increment by 1
+start with 1;
+
+
+----------------------------------
+-- 아이콘
+----------------------------------
+create table icon(
+	icon_idx number primary key 
+	, filename varchar2(20)
+);
+
+create sequence seq_icon
+increment by 1
+start with 1;
+
+----------------------------------
+-- 일정
+----------------------------------
+create  table plan(
+  plan_idx number primary key 
+  , yy number 
+  , mm number 
+  , dd number 
+  -- 누구의 일정?
+  , team_idx  number 
+  ---어떤 아이콘?
+  , icon_idx number
+  , constraint  fk_team_plan foreign key(team_idx) references team(team_idx)
+  , constraint  fk_icon_plan   foreign key(icon_idx) references icon(icon_idx)
+);
+
+create sequence seq_plan
+increment by 1
+start with 1;
+
+
+----------------------------------
+-- 할일
+----------------------------------
+create  table  todo(
+	todo_idx  number primary key 
+	, work clob
+     --어떤 일정에 대한 상세할일인데?
+    , plan_idx number 
+    , constraint  fk_plan_todo  foreign key(plan_idx) references plan(plan_idx) 	
+);
+
+create sequence seq_todo
+increment by 1
+start with 1;
+
+------------------------------------------------------------------------------------
+insert into icon(icon_idx , filename) values(seq_icon.nextval, 'cloud.png');
+insert into icon(icon_idx , filename) values(seq_icon.nextval, 'rain.png');
+insert into icon(icon_idx , filename) values(seq_icon.nextval, 'snow.png');
+insert into icon(icon_idx , filename) values(seq_icon.nextval, 'sunny.png');
+
+commit;
+
+
+
