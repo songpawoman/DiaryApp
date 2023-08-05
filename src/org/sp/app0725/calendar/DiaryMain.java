@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,6 +15,8 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
+import domain.Plan;
+import domain.Team;
 import model.IconDAO;
 import model.PlanDAO;
 import model.TeamDAO;
@@ -53,9 +56,13 @@ public class DiaryMain extends JFrame{
 	
 	//팝업창
 	Popup popup;
+	Team team;
 	
+	List<Plan> planList; //일정 정보 목록
 	
 	public DiaryMain() {
+		login();
+		
 		//UI 생성하기
 		p_north = new JPanel();
 		p_west = new JPanel();
@@ -115,6 +122,7 @@ public class DiaryMain extends JFrame{
 		
 		createCell(); //달력에 사용될 셀 생성하기
 		printTitle(); //달력 제목 출력
+		getPlanList();
 		printNum(); //날짜 출력
 		
 		setSize(1100, 850);
@@ -123,7 +131,7 @@ public class DiaryMain extends JFrame{
 		setLocationRelativeTo(null);
 
 		//팝업창 생성 및 부착 
-		popup = new Popup();
+		popup = new Popup(this);
 		
 		
 		//버튼과 리스너 연결 
@@ -139,7 +147,6 @@ public class DiaryMain extends JFrame{
 		bt_next.addActionListener((e)->{
 			next();
 		});
-		
 		
 	}
 	
@@ -180,6 +187,7 @@ public class DiaryMain extends JFrame{
 		int mm=cal.get(Calendar.MONTH);
 		cal.set(Calendar.MONTH, mm-1); //조작
 		printTitle();//제목출력
+		getPlanList();
 		printNum();//날짜출력
 	}
 	
@@ -189,6 +197,7 @@ public class DiaryMain extends JFrame{
 		int mm=cal.get(Calendar.MONTH);
 		cal.set(Calendar.MONTH, mm+1); //조작
 		printTitle();//제목출력
+		getPlanList();
 		printNum();//날짜출력
 		//기존 셀에 들어잇는 아이콘 삭제 
 		
@@ -255,11 +264,54 @@ public class DiaryMain extends JFrame{
 				count++;
 				if(count>=startDay && num<lastDate ) {
 					num++;
-					numCells[a][i].setTitle(Integer.toString(num));
+					
+					//각 날짜와 planLlist에 들어있는 Plan DTO안의 yy,mm,dd를 비교하여 
+					//일치한다면, DTO안의 정보들을 해당 셀에 적절히 추출... 
+					String value="";
+					
+					for(int k=0; k<planList.size();k++) {
+						Plan plan=planList.get(k);
+						//연,월,일이 일치한다면 알맞는 출력 
+						int yy=cal.get(Calendar.YEAR);
+						int mm=cal.get(Calendar.MONTH)+1;
+						
+						if(yy==plan.getYy() && mm==plan.getMm() && num==plan.getDd()) {
+							value+=Integer.toString(num)+"\n일정발견";
+						}
+					}
+					value+=Integer.toString(num);
+					numCells[a][i].setTitle(value);
 				}
 			}
 		}
 		
+	}
+	
+	//로그인처리 
+	public void login() {
+		//인증이 성공되면..DTO 반환받자
+		team = new Team(); //테스트를 위한  new 연산자 사용,
+		
+		//team=teamDAO.loginCheck(dto);
+		team.setTeam_idx(1);
+		team.setId("zino");
+		team.setPass("1234");
+		team.setName("지노");
+		team.setPhoto("profile.png");
+	}
+	
+	//로그인한 회원이 보유한 일정 및 todo 가져오기 
+	public void getPlanList() {
+		int yy=cal.get(Calendar.YEAR); //yy
+		int mm=cal.get(Calendar.MONTH);//mm
+		
+		Plan plan = new Plan(); //empty
+		plan.setTeam(team);
+		plan.setYy(yy);
+		plan.setMm(mm+1);
+		
+		planList=planDAO.selectAll(plan);
+		System.out.println("등록된 일정의 수는 "+planList.size());
 	}
 	
 	public static void main(String[] args) {

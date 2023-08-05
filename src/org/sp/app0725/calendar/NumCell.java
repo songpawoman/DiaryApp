@@ -35,6 +35,8 @@ public class NumCell extends Cell{
 				int yy=diaryMain.cal.get(Calendar.YEAR);
 				int mm=diaryMain.cal.get(Calendar.MONTH);
 				int n=Integer.parseInt(la_title.getText());
+				//n이 죽기전에 팝업에 심자 
+				diaryMain.popup.dd=n;
 				
 				//System.out.println(yy+"-"+(mm+1)+"-"+n+" 클릭햇어?");
 				diaryMain.popup.showPop(NumCell.this , yy+"-"+StringManager.getNumString(mm+1)+"-"+StringManager.getNumString(n));  

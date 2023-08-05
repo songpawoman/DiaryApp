@@ -1,5 +1,7 @@
 package domain;
 
+import java.util.List;
+
 public class Plan{
 	private int plan_idx;
 	private int yy;
@@ -7,6 +9,7 @@ public class Plan{
 	private int dd;
 	private Team team;//누구?
 	private Icon icon;//어떤아이콘?
+	private List<Todo> todoList;
 	
 	public int getPlan_idx() {
 		return plan_idx;
@@ -43,6 +46,9 @@ public class Plan{
 	}
 	public void setIcon(Icon icon) {
 		this.icon = icon;
+	}
+	public void setTodoList(List<Todo> todoList) {
+		this.todoList = todoList;
 	}
 	
 	

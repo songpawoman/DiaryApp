@@ -10,14 +10,20 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+
+import domain.Icon;
+import domain.Plan;
+import domain.Todo;
 
 //날짜 셀을 클릭하면, 상세 내용을 입력받을 수 있는 팝업창
 public class Popup extends JFrame{
@@ -32,6 +38,7 @@ public class Popup extends JFrame{
 	NumCell numCell; //저장 버튼 누를때, 어떤 셀을 대상으로 아이콘을 반영할지를 알기위함..
 	int index; //사용자가 선택한 라벨의 index , 이 index로 아이콘 배열명에 접근할 수 있다.
 	
+	int dd; //해당 셀을 클릭할때, 그 날짜를 전달받기 위한 멤버변수
 	
 	public Popup(DiaryMain diaryMain) {
 		this.diaryMain=diaryMain;
@@ -69,7 +76,40 @@ public class Popup extends JFrame{
 	
 	//데이터베이스에 일정 등록
 	public void save() {
-		//diaryMain.planDAO.insert();
+		Plan plan=new Plan(); //비어있는 일정 DTO생성
+		
+		int yy=diaryMain.cal.get(Calendar.YEAR);
+		int mm=diaryMain.cal.get(Calendar.MONTH);
+	
+		plan.setYy(yy);
+		plan.setMm(mm+1);
+		plan.setDd(dd);
+		plan.setTeam(diaryMain.team); //DTO안에 있는 DTO를 대입
+		
+		Icon icon=new Icon();
+		icon.setIcon_idx(1); 
+		plan.setIcon(icon);
+		
+		//어떤 아이콘을 선택했는지..
+		
+		int result=diaryMain.planDAO.insert(plan);
+		
+		
+		if(result>0) {
+			//해당 일정에 소속된 할일 등록하기
+			Todo todo=new Todo();
+			todo.setPlan(plan);
+			todo.setWork(area.getText());
+			
+			result=diaryMain.todoDAO.insert(todo);
+			
+			if(result>0) {
+				JOptionPane.showMessageDialog(this, "일정등록 성공");
+				this.setVisible(false);//현재창 닫기
+				diaryMain.getPlanList();//db불러오기 
+				diaryMain.printNum();
+			}
+		}
 	}
 	
 	//아이콘 생성 
